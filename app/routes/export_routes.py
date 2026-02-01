@@ -181,10 +181,12 @@ def create_docx_from_analysis(analysis_result: dict, project_name: str) -> str:
     # SAUVEGARDER
     # ========================================
     
-    output_dir = "./documents"
+    # Utiliser /tmp sur Railway pour éviter les problèmes de permissions
+    output_dir = "/tmp/documents" if os.path.exists("/tmp") else "./documents"
     os.makedirs(output_dir, exist_ok=True)
     
-    filename = f"Memoire_Technique_{project_name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
+    safe_project_name = (project_name or "Projet").replace(' ', '_').replace('/', '_')
+    filename = f"Memoire_Technique_{safe_project_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx"
     filepath = os.path.join(output_dir, filename)
     
     doc.save(filepath)
@@ -204,6 +206,31 @@ async def export_docx(
 ):
     """
     Exporte l'analyse en DOCX
+    Route: /api/export/{analysis_id}/docx
+    """
+    return await _generate_docx(analysis_id, current_user, db)
+
+
+@router.get("/docx/{analysis_id}")
+async def export_docx_alt(
+    analysis_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Exporte l'analyse en DOCX (route alternative)
+    Route: /api/export/docx/{analysis_id}
+    """
+    return await _generate_docx(analysis_id, current_user, db)
+
+
+async def _generate_docx(
+    analysis_id: int,
+    current_user: User,
+    db: AsyncSession
+):
+    """
+    Fonction commune de génération DOCX
     """
     
     # Récupérer l'analyse
@@ -225,6 +252,12 @@ async def export_docx(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="L'analyse n'est pas encore terminée"
+        )
+    
+    if not analysis.analysis_result:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Les résultats d'analyse ne sont pas disponibles"
         )
     
     # Vérifier si le document existe déjà

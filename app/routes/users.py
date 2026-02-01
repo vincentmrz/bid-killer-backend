@@ -43,10 +43,34 @@ class QuotaInfo(BaseModel):
 # ROUTES
 # ========================================
 
+@router.get("/me")
+async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
+    """
+    Récupère les informations de l'utilisateur connecté
+    Route principale utilisée par le frontend
+    """
+    analyses_remaining = max(0, current_user.analyses_limit - current_user.analyses_used)
+    
+    return {
+        "id": current_user.id,
+        "email": current_user.email,
+        "full_name": current_user.full_name,
+        "company_name": current_user.company_name,
+        "subscription_tier": current_user.subscription_tier,
+        "subscription_status": current_user.subscription_status,
+        "analyses_limit": current_user.analyses_limit,
+        "analyses_count": current_user.analyses_used,  # Frontend attend analyses_count
+        "analyses_remaining": analyses_remaining,
+        "created_at": current_user.created_at,
+        "last_login": current_user.last_login
+    }
+
+
 @router.get("/profile")
 async def get_profile(current_user: User = Depends(get_current_active_user)):
     """
     Récupère le profil complet de l'utilisateur
+    Alias de /me pour compatibilité
     """
     return {
         "id": current_user.id,

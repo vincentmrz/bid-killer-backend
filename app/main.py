@@ -5,6 +5,7 @@ FastAPI application principale
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
 
@@ -37,7 +38,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Bid-Killer Engine API",
     description="API Backend pour l'analyse automatique de DCE BTP",
-    version="1.0.0",
+    version="2.0.0",  # Version mise à jour
     lifespan=lifespan
 )
 
@@ -52,7 +53,11 @@ app.add_middleware(
         "http://localhost:8080",  # Vue dev
         "https://bid-killer.fr",  # Production
         "https://www.bid-killer.fr",
-        "https://app.bid-killer.fr"
+        "https://app.bid-killer.fr",
+        "https://monsieurlanding.fr",  # Client actuel
+        "https://www.monsieurlanding.fr",
+        "http://monsieurlanding.fr",
+        "http://www.monsieurlanding.fr"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -70,7 +75,7 @@ async def root():
     return {
         "status": "healthy",
         "service": "Bid-Killer Engine API",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "message": "API opérationnelle ✅"
     }
 
@@ -97,11 +102,14 @@ app.include_router(export_routes.router, prefix="/api/export", tags=["Export"])
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     """Gestion centralisée des erreurs HTTP"""
-    return {
-        "error": True,
-        "message": exc.detail,
-        "status_code": exc.status_code
-    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": True,
+            "message": exc.detail,
+            "status_code": exc.status_code
+        }
+    )
 
 # ========================================
 # MAIN (pour dev local)

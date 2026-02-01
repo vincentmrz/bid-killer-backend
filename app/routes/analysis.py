@@ -28,12 +28,13 @@ class AnalysisResponse(BaseModel):
     """Réponse d'analyse"""
     id: int
     status: str
-    project_name: Optional[str]
-    client_name: Optional[str]
-    budget_ht: Optional[float]
-    deadline: Optional[datetime]
+    result: Optional[dict] = None  # Résultat complet de l'analyse
+    project_name: Optional[str] = None
+    client_name: Optional[str] = None
+    budget_ht: Optional[float] = None
+    deadline: Optional[datetime] = None
     created_at: datetime
-    completed_at: Optional[datetime]
+    completed_at: Optional[datetime] = None
 
 
 class AnalysisDetail(BaseModel):
@@ -91,14 +92,14 @@ async def increment_user_quota(user: User, db: AsyncSession):
 # ROUTES
 # ========================================
 
-@router.post("/upload", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
-async def upload_dce(
-    file: UploadFile = File(...),
-    current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
-):
+async def _analyze_dce_impl(
+    file: UploadFile,
+    current_user: User,
+    db: AsyncSession
+) -> AnalysisResponse:
     """
-    Upload et démarre l'analyse d'un DCE
+    Implémentation commune pour /analyze et /upload
+    Contient toute la logique d'analyse d'un DCE
     """
     
     # Vérifier le quota
@@ -198,6 +199,7 @@ async def upload_dce(
     return AnalysisResponse(
         id=analysis.id,
         status=analysis.status,
+        result=analysis.analysis_result,  # Ajouter le résultat complet
         project_name=analysis.project_name,
         client_name=analysis.client_name,
         budget_ht=analysis.budget_ht,
@@ -205,6 +207,34 @@ async def upload_dce(
         created_at=analysis.created_at,
         completed_at=analysis.completed_at
     )
+
+
+@router.post("/analyze", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
+async def analyze_dce(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Analyse un DCE (route principale utilisée par le frontend)
+    
+    Cette route accepte un fichier PDF et retourne une analyse complète
+    comprenant les informations du projet, les exigences critiques,
+    les lots techniques, les contraintes et les risques.
+    """
+    return await _analyze_dce_impl(file, current_user, db)
+
+
+@router.post("/upload", response_model=AnalysisResponse, status_code=status.HTTP_201_CREATED)
+async def upload_dce(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Upload et analyse un DCE (alias de /analyze pour rétrocompatibilité)
+    """
+    return await _analyze_dce_impl(file, current_user, db)
 
 
 @router.get("/history", response_model=List[AnalysisResponse])
@@ -233,6 +263,7 @@ async def get_analysis_history(
         AnalysisResponse(
             id=a.id,
             status=a.status,
+            result=a.analysis_result,  # Inclure le résultat complet
             project_name=a.project_name,
             client_name=a.client_name,
             budget_ht=a.budget_ht,
