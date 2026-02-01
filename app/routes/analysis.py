@@ -64,8 +64,8 @@ async def extract_text_from_pdf(file_path: str) -> str:
             pdf_reader = PyPDF2.PdfReader(file)
             text = ""
             
-            # Limiter à 50 pages pour éviter timeout
-            max_pages = min(len(pdf_reader.pages), 100)
+            # Limiter à 150 pages pour capturer tous les lots
+            max_pages = min(len(pdf_reader.pages), 150)
             
             for page_num in range(max_pages):
                 page = pdf_reader.pages[page_num]
