@@ -210,11 +210,17 @@ RÈGLES D'EXTRACTION STRICTES:
    - Indiquer les numéros d'accréditation (ex: "COFRAC N° 3-1592")
 
 5. **Lots techniques** :
-   - Numéro exact du lot
-   - Nom complet
-   - Description détaillée des travaux
-   - Matériaux mentionnés
-   - Budget si disponible (extraire des DPGF si présents)
+   - CHERCHER TOUS LES LOTS PARTOUT (CCTP, DPGF, BPU, RC, sommaires)
+   - Lister TOUS les lots même si détails manquants (du Lot 01 au dernier lot)
+   - Pour chaque lot trouvé :
+     * Numéro exact du lot
+     * Nom complet
+     * Description détaillée des travaux
+     * Matériaux mentionnés
+     * Budget si disponible (extraire des DPGF/BPU)
+     * Spécifications techniques
+   - IMPORTANT: Ne pas s'arrêter aux 3-4 premiers lots, chercher jusqu'au dernier
+   - Si un lot manque de détails, le lister quand même avec "Détails à préciser"
 
 6. **Contraintes techniques** :
    - Zone vent (ex: 17 m/s)
@@ -245,6 +251,18 @@ POINTS CRITIQUES À NE PAS MANQUER:
 - Avis suspendus (indicateurs de risque)
 - Contraintes climatiques et géotechniques
 - Type de structure et matériaux
+- 🔴 CRITIQUE: TOUS LES LOTS du premier au dernier (chercher dans sommaires, DPGF, CCTP)
+
+⚠️ ATTENTION SPÉCIALE LOTS:
+Les DCE BTP ont généralement 8 à 15 lots techniques. Ne t'arrête PAS aux 3-4 premiers lots !
+Cherche les lots dans :
+- Le sommaire général du DCE
+- Les CCTP (Cahier des Clauses Techniques Particulières) de chaque lot
+- Le DPGF (Décomposition du Prix Global et Forfaitaire)
+- Le BPU (Bordereau des Prix Unitaires)
+- Le RC (Règlement de Consultation)
+
+Si tu trouves mention de "Lot 01" à "Lot 11", tu DOIS extraire les 11 lots, pas seulement les 3 premiers.
 
 DOCUMENT À ANALYSER:
 
