@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     # Anthropic API
     ANTHROPIC_API_KEY: str = ""
     ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
-    ANTHROPIC_MAX_TOKENS: int = 4000
+    ANTHROPIC_MAX_TOKENS: int = 8000  # Augmenté pour capturer tous les lots
     
     # Stripe
     STRIPE_SECRET_KEY: str = ""
