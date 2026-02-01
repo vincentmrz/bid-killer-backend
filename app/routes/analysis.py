@@ -65,7 +65,7 @@ async def extract_text_from_pdf(file_path: str) -> str:
             text = ""
             
             # Limiter à 50 pages pour éviter timeout
-            max_pages = min(len(pdf_reader.pages), 50)
+            max_pages = min(len(pdf_reader.pages), 100)
             
             for page_num in range(max_pages):
                 page = pdf_reader.pages[page_num]
