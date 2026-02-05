@@ -511,10 +511,7 @@ async def analyze_dce_async(
     try:
         job = queue.enqueue(
             'worker.process_analysis_job',  # Fonction dans worker.py
-            job_id=job_id,
-            file_path=temp_path,
-            filename=file.filename,
-            user_id=current_user.id,
+            args=(job_id, temp_path, file.filename, current_user.id),  # ✅ Arguments positionnels
             job_timeout='2h',  # Timeout de 2 heures (largement suffisant)
             result_ttl=86400,  # Garde résultat 24h
             failure_ttl=86400  # Garde erreur 24h
