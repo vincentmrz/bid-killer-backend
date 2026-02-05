@@ -1,0 +1,44 @@
+# Core
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.25
+asyncpg==0.29.0
+alembic==1.13.1
+
+# Auth
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+
+# AI & Analysis
+httpx==0.27.2
+anthropic==0.18.1
+PyPDF2==3.0.1
+python-docx==1.1.0
+openpyxl==3.1.2
+pillow==10.2.0
+
+# File Processing
+py7zr==0.20.8
+rarfile==4.1
+patool==2.0.0
+
+# Background Jobs (RQ pour Render)
+redis==5.0.1
+rq==1.16.0
+rq-scheduler==0.13.1
+
+# Utils
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Monitoring
+loguru==0.7.2
+
+# Payments
+stripe

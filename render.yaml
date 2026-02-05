@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: bid-killer-api
+    runtime: python
+    plan: starter
+    region: frankfurt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bid-killer-db
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-20250514
+      - key: ANTHROPIC_MAX_TOKENS
+        value: 4096
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: UPLOAD_DIR
+        value: /tmp/uploads
+    autoDeploy: true
+
+  - type: worker
+    name: bid-killer-worker
+    runtime: python
+    plan: starter
+    region: frankfurt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python worker.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bid-killer-db
+          property: connectionString
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-sonnet-4-20250514
+      - key: ANTHROPIC_MAX_TOKENS
+        value: 4096
+    autoDeploy: true
+
+databases:
+  - name: bid-killer-db
+    plan: free
+    region: frankfurt
+    databaseName: bidkiller
+    user: bidkiller
+
+  - name: bid-killer-redis
+    plan: free
+    region: frankfurt
