@@ -77,10 +77,14 @@ except Exception as e:
 # Services
 claude_service = ClaudeServiceAsync()
 
-async def process_analysis_job(job_id: str, file_path: str, filename: str, user_id: int):
+# ========================================
+# FONCTION ASYNC (Core Logic)
+# ========================================
+
+async def _process_analysis_job_async(job_id: str, file_path: str, filename: str, user_id: int):
     """
-    Traite une analyse en background
-    Cette fonction tourne dans un worker séparé sans timeout
+    Traite une analyse en background (version async)
+    Cette fonction contient la vraie logique métier
     """
     logger.info(f"🚀 Worker démarre job {job_id}")
     
@@ -181,6 +185,43 @@ async def process_analysis_job(job_id: str, file_path: str, filename: str, user_
                 logger.info(f"🗑️ Fichier temporaire supprimé : {file_path}")
             except:
                 pass
+
+
+# ========================================
+# WRAPPER SYNCHRONE (pour RQ)
+# ========================================
+
+def process_analysis_job(job_id: str, file_path: str, filename: str, user_id: int):
+    """
+    ✅ WRAPPER SYNCHRONE pour RQ
+    
+    RQ ne supporte pas les fonctions async nativement.
+    Cette fonction wrapper crée une event loop et exécute la fonction async.
+    
+    Args:
+        job_id: ID unique du job
+        file_path: Chemin du fichier à analyser
+        filename: Nom original du fichier
+        user_id: ID de l'utilisateur
+    
+    Returns:
+        dict: Résultat de l'analyse
+    """
+    logger.info(f"📨 Wrapper synchrone appelé pour job {job_id}")
+    
+    # Créer une nouvelle event loop pour ce thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    try:
+        # Exécuter la fonction async dans la loop
+        result = loop.run_until_complete(
+            _process_analysis_job_async(job_id, file_path, filename, user_id)
+        )
+        return result
+    finally:
+        # Fermer proprement la loop
+        loop.close()
 
 
 def run_worker():
